@@ -1,3 +1,46 @@
+## As-3
+### Fork-Signal-Thread
+
+
+3-c(thread)->
+```
+#include<stdio.h>
+#include<pthread.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+//Function prints HELLOW WORLD
+//called by pthread
+void print_hello(void *arg){
+	pthread_t id = *(int *) arg;
+    printf("HELLO WORLD( In Thread ID %d )\n",id);
+    /* exiting from thread. */
+	pthread_exit(NULL);
+}
+
+// Driver Function
+int main(){
+    pthread_t thread_id;
+    /* Beginning the new thread */
+    printf("Executing the thread\n");
+     // creating a thread
+    pthread_create(&thread_id,NULL,print_hello,&thread_id);
+    /* waiting for thread execution to get finished. */
+	pthread_join(thread_id, NULL);
+    printf("Thread execution completed\n");
+    /* Thread execution finished and exiting */
+    exit(0);
+}
+
+
+
+
+
+```
+
+
+
+
 ## As-4
 ### PIPE
 
