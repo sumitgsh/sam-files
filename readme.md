@@ -1,7 +1,83 @@
+## As-4
+### PIPE
+
+```
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<wait.h>
+#include<signal.h>
+#define N 100
+
+void handler(int signo){
+
+    int i, first_term ,second_term , third_term, no_of_terms;
+    int fd[2],arr[N];
+    pipe(fd);
+    pid_t pid, gpid;
+    pid = fork();
+
+    if(pid < 0)
+        exit(1);
+
+    if(pid == 0){
+        gpid = getpid();
+        write(fd[1],&gpid,sizeof(gpid));
+
+        printf("\nChild Process\n");
+        printf("Enter the number of terms for the fibonacci series: ");
+        scanf("%d",&no_of_terms);
+        write(fd[1],&no_of_terms,sizeof(no_of_terms));
+
+        first_term = 0;
+        second_term = 1;
+        write(fd[1],&first_term,sizeof(first_term));
+        write(fd[1],&second_term,sizeof(second_term));
+
+        for(i = 2; i< no_of_terms ; ++i){
+            third_term = first_term + second_term;
+            first_term = second_term;
+            second_term = third_term;
+            write(fd[1],&third_term,sizeof(third_term));
+        }
+        write(fd[1],&signo,sizeof(signo));
+
+        exit(0);
+    }
+
+    else if(pid > 1){
+        wait(NULL);
+        printf("\nParent Process\n");
+        read(fd[0],&gpid,sizeof(gpid));
+        read(fd[0],&no_of_terms,sizeof(no_of_terms));
+        read(fd[0],&arr,N);
+
+        for(i = 0 ; i < no_of_terms; i++){
+            printf(" %d ",arr[i]);
+        }
+
+        printf("\nSignal number is : %d\n",signo);
+        exit(0);
+    }
+}
+
+int main(){
+    signal(SIGINT,handler);
+    while(1){
+        printf("Please Press Ctrl+C\n");
+        sleep(2);
+    }
+    return 0;
+}
+
+```
+
+
+
 
 ## As-5
 
-### PIPE of FIFO
+### PIPE or FIFO
 
 5-a-1>
 ```
