@@ -5,7 +5,7 @@
 
 6-a>
 
-
+```
 #include <stdio.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
@@ -15,9 +15,13 @@ int main()
     key_t key = ftok("shmfile",65);
 
     // shmget returns an identifier in shmid
+    
+    // shmget(key_t key,size_t size,shmflg)
     int shmid = shmget(key,1024,0666|IPC_CREAT);
 
     // shmat to attach to shared memory
+    //attaching the memory to the process address space..
+    //void* shmat(int id,const *void address,flag)
     char *str = (char*) shmat(shmid,(void*)0,0);
 
     printf("Enter the string: ");
@@ -30,9 +34,10 @@ int main()
 
     return 0;
 }
+```
 
 6-b>
-
+```
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <stdio.h>
@@ -59,3 +64,4 @@ int main()
 
 	return 0;
 }
+```
