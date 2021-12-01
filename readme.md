@@ -1,7 +1,115 @@
 
 ## As-5
 
+### PIPE of FIFO
 
+5-a-1>
+```
+#include <stdio.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+int main()
+{
+    int fd;
+
+    //FiFo file path name..
+    char *myfifo = "/tmp/myfifo";
+
+    //Creating a name pipe using mkfifo() along with the permissions
+    //Since mknod() is not supported in C99 Compilers
+    mkfifo(myfifo, 0666); /* 0666 - Read Write Permission */
+
+    //Input Store..
+	char str1[80], str2[80];
+
+    while (1)
+    {
+
+        //Opening the created file in read mode
+        printf("\nWaiting for Program 2 to write... \n");
+        fd = open(myfifo,O_RDONLY);
+
+        //read from the opened file
+		read(fd, str1, 80);
+
+        //Print the String passed by Program2
+        printf("\nProgram 2: %s\n", str1);
+        sleep(fd);
+
+		//Input of the String in program-1
+		printf("Input a string (Program 1):");
+        fgets(str2, 80, stdin);
+
+        //Opening FIFO in write mode ,such that we can write the contents in the created file..
+        fd = open(myfifo,O_WRONLY);
+
+        /* Writing the string taken from user to FIFO and sleep */
+        write(fd, str2, strlen(str2)+1);
+        sleep(fd);
+    }
+
+    return 0;
+}
+
+```
+
+5-a-2>
+
+```
+#include <stdio.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+int main()
+{
+    int fd;
+
+    //FiFo file path name..
+    char * myfifo = "/tmp/myfifo";
+
+    //Creating a name pipe using mkfifo() along with the permissions
+    //Since mknod() is not supported in C99 Compilers
+    mkfifo(myfifo, 0666); /* 0666 - Read Write Permission */
+
+	/* Character array for storing the inputs of two programs */
+    char str1[80], str2[80];
+
+    while (1)
+    {
+        //Input of the String in program-2
+        printf("Input a string (Program 2):");
+        fgets(str2, 80, stdin);
+
+        //Opening FIFO in write mode ,such that we can write the contents in the created file..
+        fd = open(myfifo, O_WRONLY);
+
+        /* Writing the string taken from user to FIFO and close */
+        write(fd, str2, strlen(str2)+1);
+        close(fd);
+
+		//Opening FIFO in read mode ,such that we can read the contents from the created file..
+        printf("\nWaiting for Program 1 to write... \n");
+        fd = open(myfifo, O_RDONLY);
+
+        /* Reading from FIFO */
+        read(fd, str1, sizeof(str1));
+
+        /* Print the read string and close */
+        printf("\nProgram 1: %s\n", str1);
+        close(fd);
+    }
+
+    return 0;
+}
+
+```
 
 
 ## As-6
