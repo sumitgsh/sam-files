@@ -1,3 +1,444 @@
+## As-1
+```
+Assignment-1
+1(a):
+#include<stdio.h>
+#include<stdlib.h>
+#include<sys/types.h>
+#include<unistd.h>
+int main(){
+pid_t ret;
+res = fork();
+if(res<0){
+printf("Fork failure\n");
+}
+else if(res==0){
+printf("Child process Id: %d\n",getpid());
+printf("Child process parent Id: %d\n",getppid());
+int a,b;
+printf("\nEnter the dividend: ");
+scanf("%d",&a);
+printf("\nEnter the divisor: ");
+scanf("%d",&b);
+if(b==0){
+printf("Divisor cannot be zero\n");
+exit(1);
+}
+else{
+printf("\nThe result is: %d\n",a/b);
+exit(0);
+}
+}
+else{
+printf("\nParent process\n");
+printf("Process Id: %d\n",getpid());
+printf("Process parent Id: %d\n",getppid());
+}
+return 0;
+}
+1(b)
+#include<stdio.h>
+#include<stdlib.h>
+#include<sys/types.h>
+#include<unistd.h>
+#include<sys/wait.h>
+int main(){
+pid_t ret;
+ret = fork();
+if(ret<0){
+printf("Fork failure\n");
+}
+else if(ret==0){
+printf("\nChild process\n");
+printf("Child process ID: %d\n",getpid());
+printf("Child process parent ID: %d\n",getppid());
+int a,b;
+printf("\nEnter the dividend: ");
+scanf("%d",&a);
+printf("\nEnter the divisor: ");
+scanf("%d",&b);
+if(b==0){
+printf("Divisor cannot be zero\n");
+exit(1);
+}
+else{
+printf("\nThe result is: %d\n",a/b);
+exit(0);
+}
+}
+else{
+wait(NULL);
+printf("\nParent process\n");
+printf("Process ID: %d\n",getpid());
+printf("Process parent ID: %d\n",getppid());
+}
+return 0;
+}
+1(c)
+Note: The below user defined program is saved as OddEven.c
+#include<stdio.h>
+#include<stdlib.h>
+int main(){
+int a=5;
+ if(a&1)
+ {
+ printf("odd");
+ }else
+ {
+ printf("even");
+ } return 0;
+}
+- OddEven.c file is used in the below program
+#include<stdio.h>
+#include<stdlib.h>
+#include<sys/types.h>
+#include<unistd.h>
+#include<sys/wait.h>
+int main(){
+pid_t ret;
+int stat;
+char *p;
+ret = fork();
+if(ret<0){
+printf("Fork failure\n");
+}
+else if(ret==0){
+char *argv[] = {"./OddEven",NULL};
+p = argv[0];
+printf("Program name: %s\n",p);
+execv(argv[0],argv);
+}
+else{
+wait(&stat);
+if(WIFEXITED(stat)){
+printf("Exit status %d\n",stat);
+}
+}
+return 0;
+}
+```
+
+## As-2
+```
+Assignment-2
+2(a)
+#include <stdio.h>
+void longest_job_first(int at[], int bt[], int process)
+{
+ printf("\n LONGEST JOB FIRST ALGORITHM \n");
+ int p[20], wt[20], tat[20], i, j, n, total = 0, pos, temp, x = 0;
+ float avg_wt, avg_tat;
+ n = process;
+ for (i = 0; i < n; i++)
+ {
+ p[i] = i;
+ }
+ for (i = 0; i < n; i++)
+ {
+ pos = i;
+ for (j = i + 1; j < n; j++)
+ {
+ if (bt[j] > bt[pos])
+ pos = j;
+ }
+ temp = bt[i];
+ bt[i] = bt[pos];
+ bt[pos] = temp;
+ temp = p[i];
+ p[i] = p[pos];
+ p[pos] = temp;
+ }
+ wt[0] = 0;
+ for (i = 1; i < n; i++)
+ {
+ wt[i] = 0;
+ for (j = 0; j < i; j++)
+ {
+ wt[i] += bt[j];
+ }
+ total += wt[i];
+ }
+ printf("\nGantt Chart\n");
+ for (i = 0; i < n; i++)
+ {
+ x += bt[i];
+ printf("\nP%d %d", p[i], x);
+ }
+ avg_wt = (float)total / n;
+ total = 0;
+ printf("\nProcesst Burst Time \tWaiting Time \tTurnaround Time");
+ for (i = 0; i < n; i++)
+ {
+ tat[i] = bt[i] + wt[i];
+ total += tat[i];
+ printf("\np%d\t\t %d\t\t %d\t\t\t%d", p[i], bt[i], wt[i], tat[i]);
+ }
+ avg_tat = (float)total / n;
+ printf("\nAverage Waiting Time=%f", avg_wt);
+ printf("\nAverage Turnaround Time=%f", avg_tat);
+}
+void srtf(int at[], int bt[], int process)
+{
+ printf("\n\n**** SRTF ALGORITHM ****\n");
+ int p[20], wt[20], tat[20], i, j, n, total = 0, pos, temp, x = 0;
+ float avg_wt, avg_tat;
+ n = process;
+ for (i = 0; i < n; i++)
+ {
+ p[i] = i;
+ }
+ for (i = 0; i < n; i++)
+ {
+ pos = i;
+ for (j = i + 1; j < n; j++)
+ {
+ if (bt[j] < bt[pos])
+ pos = j;
+ }
+ temp = bt[i];
+ bt[i] = bt[pos];
+ bt[pos] = temp;
+ temp = p[i];
+ p[i] = p[pos];
+ p[pos] = temp;
+ }
+ printf("\nGantt Chart\n");
+ for (i = 0; i < n; i++)
+ {
+ x += bt[i];
+ printf("\nP%d %d", p[i], x);
+ }
+ wt[0] = 0;
+ for (i = 1; i < n; i++)
+ {
+ wt[i] = 0;
+ for (j = 0; j < i; j++)
+ wt[i] += bt[j];
+ total += wt[i];
+ }
+ avg_wt = (float)total / n;
+ total = 0;
+ printf("\nProcesst Burst Time \tWaiting Time \tTurnaround Time");
+ for (i = 0; i < n; i++)
+ {
+ tat[i] = bt[i] + wt[i];
+ total += tat[i];
+ printf("\np%d\t\t %d\t\t %d\t\t\t%d", p[i], bt[i], wt[i], tat[i]);
+ }
+ avg_tat = (float)total / n;
+ printf("\nAverage Waiting Time=%f", avg_wt);
+ printf("\nAverage Turnaround Time=%f", avg_tat);
+}
+int main()
+{
+ int n, i;
+ int arrival_time[10], burst_time[10];
+ printf(" Total number of process in the system: ");
+ scanf("%d", &n);
+ for (i = 0; i < n; i++)
+ {
+ printf("Enter the Arrival Time and Burst Time of P-%d ", i + 1);
+ scanf("%d", &arrival_time[i]);
+ scanf("%d", &burst_time[i]);
+ }
+ longest_job_first(arrival_time, burst_time, n);
+ srtf(arrival_time, burst_time, n);
+}
+2(b)-
+#include <stdio.h>
+void main()
+{
+ int k, j, q, i, n, ts, temp;
+ int aw;
+ float awt, tat;
+ //Assuming that the maximun values will be less than 10
+ int burst_time[10], waiting_time[10], te[10], rt[10], arrival_time[10];
+ j = 0;
+ printf("Enter number of process :");
+ scanf("%d", &n);
+ for (i = 0; i < n; i++)
+ {
+ printf("\n Enter arrival time and Burst time of P-%d :", i + 1);
+ scanf("%d", &arrival_time[i]);
+ scanf("%d", &burst_time[i]);
+ te[i] = 0;
+ waiting_time[i] = 0;
+ }
+ for (i = 0; i < n; i++)
+ {
+ for (j = i + 1; j < n; j++)
+ {
+ if (arrival_time[i] > arrival_time[j])
+ {
+ //sorting according to arrival time
+ temp = arrival_time[i];
+ arrival_time[i] = arrival_time[j];
+ arrival_time[j] = temp;
+ temp = burst_time[i];
+ burst_time[i] = burst_time[j];
+ burst_time[j] = temp;
+ }
+ }
+ }
+ printf("\n Enter Time Qunatam: \t");
+ scanf("%d", &ts);
+ q = 0;
+ printf("\nprocess :");
+ for (i = 0; i < n; i++)
+ {
+ printf(" %d", i + 1);
+ }
+ printf("\nBrust time :");
+ for (i = 0; i < n; i++)
+ {
+ printf(" %d", burst_time[i]);
+ rt[i] = burst_time[i];
+ }
+ printf("\nArrival time :");
+ for (i = 0; i < n; i++)
+ {
+ printf(" %d", arrival_time[i]);
+ }
+ printf("\n Gantt chart \n");
+ j = 0;
+ while (j <= n)
+ {
+ j++;
+ for (i = 0; i < n; i++)
+ {
+ if (rt[i] == 0)
+ continue;
+ if (rt[i] > ts)
+ {
+ printf("\n %d\t P%d", q, i + 1);
+ q = q + ts;
+ rt[i] = rt[i] - ts;
+ te[i] = te[i] + 1;
+ }
+ else
+ {
+ printf("\n %d\t P%d", q, i + 1);
+ waiting_time[i] = q - te[i] * ts;
+ q = q + rt[i];
+ rt[i] = rt[i] - rt[i];
+ }
+ }
+ } //end of while
+ awt = 0;
+ //calculate waiting time
+ for (i = 0; i < n; i++)
+ {
+ waiting_time[i] = waiting_time[i] - arrival_time[i];
+ awt = awt + waiting_time[i];
+ }
+ aw = awt;
+ //calculate Turn around time
+ tat = 0;
+ for (int i = 0; i < n; i++)
+ {
+ tat += waiting_time[i] + burst_time[i];
+ }
+ printf("\n Average waiting time %f ", awt / n);
+ printf("\n Average turn around time %f ", tat / n);
+}
+2(c)-
+#include <stdio.h>
+void priority_non_preemptive(int at[], int bt[], int process)
+{
+ printf("\n**** PRIORITY ALGORITHM (Non Preemptive) ****\n");
+ int priority[10];
+ int i, count = 0, highest = 9, time;
+ int waiting = 0, turnaround = 0;
+ float avg_wt, avg_tat;
+ for (i = 0; i < process; i++)
+ {
+ printf("Enter priority of Process %d: ", i + 1);
+ scanf("%d", &priority[i]);
+ }
+ priority[highest] = -1;
+ printf("\nGannt Chart:\n");
+ for (time = 0; count != process;)
+ {
+ highest = 9;
+ for (i = 0; i < process; i++)
+ {
+ if (at[i] <= time && priority[i] > priority[highest])
+ {
+ highest = i;
+ }
+ }
+ time += bt[highest];
+ printf("Process: %d - Current CPU Time: %d \n", highest + 1, time);
+ priority[highest] = -1;
+ count++;
+ waiting += time - at[highest] - bt[highest];
+ turnaround += time - at[highest];
+ }
+ avg_wt = waiting * 1.0 / process;
+ avg_tat = turnaround * 1.0 / process;
+ printf("\nAverage Turn Around Time: %f \n", avg_wt);
+ printf("Average Waiting Time: %f \n", avg_tat);
+}
+void priority_preemptive(int at[], int bt[], int process)
+{
+ printf("\n**** PRIORITY ALGORITHM (Preemptive) ****\n");
+ int priority[10], temp[10];
+ int i, count = 0, highest = 9, time, end;
+ int waiting = 0, turnaround = 0;
+ float avg_wt, avg_tat;
+ for (i = 0; i < process; i++)
+ {
+ printf("Enter priority of Process %d: ", i + 1);
+ scanf("%d", &priority[i]);
+ temp[i] = bt[i];
+ }
+ priority[highest] = -1;
+ for (time = 0; count != process; time++)
+ {
+ highest = 9;
+ for (i = 0; i < process; i++)
+ {
+ if (at[i] <= time && priority[i] > priority[highest] && temp[i] > 0)
+ {
+ highest = i;
+ }
+ }
+ temp[highest]--;
+ printf("Process: %d - Current CPU Time: %d \n", highest + 1, time + 1);
+ if (temp[highest] == 0)
+ {
+ count++;
+ end = time + 1;
+ waiting += end - at[highest] - bt[highest];
+ turnaround += end - at[highest];
+ }
+ }
+ avg_wt = waiting * 1.0 / process;
+ avg_tat = turnaround * 1.0 / process;
+ printf("\nAverage Turn Around Time: %f \n", avg_wt);
+ printf("Average Waiting Time: %f \n", avg_tat);
+}
+int main()
+{
+ int NOP, i;
+ int at[10], bt[10];
+ printf(" Total number of process in the system: ");
+ scanf("%d", &NOP);
+ printf("Enter the Arrival Time and Burst Time\n");
+ for (i = 0; i < NOP; i++)
+ {
+ printf("Process %d \n", i + 1);
+ printf("Arrival time is: ");
+ scanf("%d", &at[i]);
+ printf("Burst time is: ");
+ scanf("%d", &bt[i]);
+ }
+ priority_non_preemptive(at, bt, NOP);
+ priority_preemptive(at, bt, NOP);
+ return 0;
+}
+```
+
 ## As-3
 ### Fork-Signal-Thread
 3-a(signal handler)>
