@@ -1,5 +1,151 @@
 ## As-3
 ### Fork-Signal-Thread
+3-a(signal handler)>
+
+
+```
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<sys/types.h>
+#include<sys/wait.h>
+#include<signal.h>
+
+/* Handler function for the Signal */
+void handler(int num){
+
+    pid_t ret_id;
+
+    //Create a child Process
+
+    ret_id = fork();
+    /* Failed fork if return status <0 */
+    if(ret_id<0){
+        printf("Failed to create process\n");
+    }
+    // Child Process
+    else if(ret_id==0){
+        printf("\n* Inside the child Process*\n");
+        printf("The process ID is: %d\n",getpid());
+        printf("The parent process ID is: %d\n",getppid());
+    }
+    // Parent Process
+    else{
+        wait(NULL);
+        printf("\n* Inside the parent process *\n");
+        printf("The process ID is: %d\n",getpid());
+        printf("The parent process ID is: %d\n",getppid());
+    }
+    exit(0);
+}
+
+int main()
+{
+
+	/* signal() system call */
+    signal(SIGINT,handler);
+
+	while(1){
+    printf("Waiting for Interrupt...(Press Ctrl+C to Interrupt)\n");
+        sleep(1);
+    }
+
+    return 0;
+}
+```
+
+3-a-modifed(signal handler)>
+
+```
+#include<stdio.h>
+#include<signal.h>
+#include<unistd.h>
+#include<stdlib.h>
+#include<sys/types.h>
+
+
+// SigInt
+void sigint(){
+    printf("Signal id: 2\n");
+    exit(0);
+}
+
+// SigInt function call
+void sighquit(){
+    printf("Signal quit id: 3\n");
+    exit(0);
+}
+
+
+// sigkill funciton call
+void sigkill(){
+    printf("Signal kill: 9\n");
+    exit(0);
+}
+
+//sigabort function call
+void sigabrt(){
+    printf("Signal abort: 6\n");
+    exit(0);
+}
+
+int main()
+{
+    int i;
+
+    //Process Id genaration
+	printf("Current process ID is: %d\n",getpid());
+ 	signal(SIGINT, sigint);
+ 	signal(SIGHUP, sighquit);
+ 	signal(SIGKILL, sigkill);
+ 	signal(SIGABRT, sigabrt);
+
+    //Wait for process to send the signal
+ 	for(i=0; ;i++){
+        printf("Waiting for another process to send the signal:\n");
+        sleep(3);
+    }
+    return 0;
+}
+```
+
+
+3-b(along with kill)>
+```
+#define _POSIX_SOURCE
+#include<stdio.h>
+#include <stdlib.h>
+#include<signal.h>
+#include<unistd.h>
+#include<unistd.h>
+#include<sys/types.h>
+
+int main()
+{
+     /* Stores the Process ID to send signal */
+	pid_t PROCESS_ID;
+
+	//Bucket for the Signal Number
+    int SIGNAL_NUM;
+    printf("Enter a Process ID: ");
+    scanf("%d",&PROCESS_ID);
+
+    printf("Select or Type signal value from the below list:\n");
+    printf("Interrupt Signal(SIGINT) type value->2\n");
+    printf("Quit the process(SIGQUIT) type value->3\n");
+    printf("Kill Process(SIGKILL) type value->9\n");
+    printf("Abort Process(SIGABRT) type value->6\n");
+
+    printf("\n Enter the signal value :");
+    scanf("%d",&SIGNAL_NUM);
+    /* Sending signal to another process */
+    kill(PROCESS_ID,SIGNAL_NUM);
+    return 0;
+}
+
+```
+
+
 
 
 3-c(thread)->
