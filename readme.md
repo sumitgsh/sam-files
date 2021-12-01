@@ -958,3 +958,94 @@ int main(){
 }
 
 ```
+
+## As-10
+### client
+```
+
+
+
+#include <stdio.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+
+// structure for message queue
+struct mesg_buffer {
+    //type of the message..
+	long msg_type;
+	//size of the message limited to 100 characters..
+	char msg_text[100];
+} message;
+
+int main()
+{
+	key_t key;
+	int msgid;
+
+	// Generate unique key
+	key = ftok("progfile", 65);
+
+	// msgget creates a message queue and returns identifier
+	msgid = msgget(key, 0666 | IPC_CREAT);
+
+	// Printing the message queue ID
+	printf("Message Queue ID is: %d \n", msgid);
+
+	// msgrcv to receive message
+	msgrcv(msgid, &message, sizeof(message), 1, 0);
+
+	// Displaying the message
+	printf("Data Received from server : %s \n", message.msg_text);
+
+	// Removing the message queue
+	printf("Removing the queue. \n");
+	msgctl(msgid, IPC_RMID, NULL);
+
+	return 0;
+}
+
+```
+
+### server
+```
+// C Program for Message Queue (Writer Process)
+#include <stdio.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#define MAX 100
+
+// structure for message queue
+struct mesg_buffer {
+	long msg_type;
+	char msg_text[100];
+} message;
+
+int main()
+{
+	key_t key;
+	int msgid;
+
+	// ftok to generate unique key
+	key = ftok("progfile", 65);
+
+	// msgget creates a message queue and returns identifier
+	msgid = msgget(key, 0666 | IPC_CREAT);
+	message.msg_type = 1;
+
+	// printing the message queue ID
+	printf("Message Queue ID is: %d \n", msgid);
+
+	// Taking message as input
+	printf("Enter the message: ");
+	fgets(message.msg_text, MAX, stdin);
+
+	// msgsnd to send message
+	msgsnd(msgid, &message, sizeof(message), 0);
+
+	// Displaying the sent message
+	printf("Sent data to client: %s \n", message.msg_text);
+
+	return 0;
+}
+
+```
